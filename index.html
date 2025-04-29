@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nilai Siswa</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 1rem;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    select {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    @media (max-width: 600px) {
+      th, td {
+        font-size: 0.8rem;
+        padding: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Data Nilai Siswa</h1>
+  <select id="mapelDropdown">
+    <option value="">Pilih Mata Pelajaran</option>
+  </select>
+
+  <table id="nilaiTable">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama Siswa</th>
+        <th>Nilai</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Data akan dimuat di sini -->
+    </tbody>
+  </table>
+
+  <script>
+    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFqxLQ97dRcaVuS3SGPeiQNzSuKu8S0nw-mLJPG1bVWFsW2JkT4NZuw7Z7nBvZVSmTjH96ZAwO9mXW/pub?output=csv';
+    const dropdown = document.getElementById('mapelDropdown');
+    const tbody = document.querySelector('#nilaiTable tbody');
+    let data = [];
+
+    function parseCSV(text) {
+      const rows = text.trim().split('\n').map(row => row.split(','));
+      const header = rows.shift();
+      return rows.map(row => {
+        return {
+          nama: row[0],
+          mapel: row[1],
+          nilai: row[2]
+        };
+      });
+    }
+
+    function populateDropdown(data) {
+      const mapelSet = new Set(data.map(item => item.mapel));
+      mapelSet.forEach(mapel => {
+        const option = document.createElement('option');
+        option.value = mapel;
+        option.textContent = mapel;
+        dropdown.appendChild(option);
+      });
+    }
+
+    function updateTable(selectedMapel) {
+      tbody.innerHTML = '';
+      let filtered = data.filter(d => d.mapel === selectedMapel);
+      filtered.forEach((item, index) => {
+        const row = `<tr>
+          <td>${index + 1}</td>
+          <td>${item.nama}</td>
+          <td>${item.nilai}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    fetch(csvUrl)
+      .then(res => res.text())
+      .then(text => {
+        data = parseCSV(text);
+        populateDropdown(data);
+      });
+
+    dropdown.addEventListener('change', () => {
+      updateTable(dropdown.value);
+    });
+  </script>
+</body>
+</html>
