@@ -78,7 +78,8 @@
     }
 
     function populateDropdown() {
-      for (let i = 1; i < headers.length; i++) {
+      // Mulai dari index 2 (bukan 0 dan 1) --> 0: No, 1: Nama
+      for (let i = 2; i < headers.length; i++) {
         const option = document.createElement('option');
         option.value = i;
         option.textContent = headers[i];
@@ -91,11 +92,12 @@
       let no = 1;
 
       dataRows.forEach(row => {
-        if (row.length > subjectIndex && row[0]) {
+        // row[1] itu Nama Siswa
+        if (row.length > subjectIndex && row[1]) {
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td>${no++}</td>
-            <td>${row[0]}</td>
+            <td>${row[1]}</td>
             <td>${row[subjectIndex] || '-'}</td>
           `;
           tbody.appendChild(tr);
