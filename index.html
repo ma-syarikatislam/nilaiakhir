@@ -30,6 +30,7 @@
       border-collapse: collapse;
       background: #fff;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      margin-bottom: 1rem;
     }
 
     th, td {
@@ -47,6 +48,14 @@
       background: #f0f0f0;
     }
 
+    #loading {
+      text-align: center;
+      font-size: 1rem;
+      color: #555;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
     @media (max-width: 600px) {
       th, td {
         font-size: 0.8rem;
@@ -58,7 +67,9 @@
 <body>
   <h1>Nilai Akhir Siswa</h1>
 
-  <select id="mapelDropdown">
+  <div id="loading">Memuat data...</div>
+
+  <select id="mapelDropdown" disabled>
     <option value="">Pilih Mata Pelajaran</option>
   </select>
 
@@ -77,6 +88,7 @@
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFqxLQ97dRcaVuS3SGPeiQNzSuKu8S0nw-mLJPG1bVWFsW2JkT4NZuw7Z7nBvZVSmTjH96ZAwO9mXW/pub?output=csv';
     const dropdown = document.getElementById('mapelDropdown');
     const tbody = document.querySelector('#nilaiTable tbody');
+    const loading = document.getElementById('loading');
 
     let headers = [];
     let dataRows = [];
@@ -88,14 +100,13 @@
     }
 
     function populateDropdown() {
-      // Mulai dari kolom ke-3 (index 2), karena:
-      // 0 = No, 1 = Nama
       for (let i = 2; i < headers.length; i++) {
         const option = document.createElement('option');
         option.value = i;
         option.textContent = headers[i];
         dropdown.appendChild(option);
       }
+      dropdown.disabled = false;
     }
 
     function updateTable(subjectIndex) {
@@ -103,24 +114,34 @@
       let no = 1;
 
       dataRows.forEach(row => {
-        if (row.length > subjectIndex && row[1]) {
+        const nilai = row[subjectIndex] ? row[subjectIndex].trim() : '';
+
+        if (row.length > subjectIndex && row[1] && nilai !== '') {
           const tr = document.createElement('tr');
           tr.innerHTML = `
             <td class="center">${no++}</td>
             <td>${row[1]}</td>
-            <td class="center">${row[subjectIndex] || '-'}</td>
+            <td class="center">${nilai}</td>
           `;
           tbody.appendChild(tr);
         }
       });
     }
 
-    fetch(csvUrl)
-      .then(response => response.text())
-      .then(text => {
-        parseCSV(text);
-        populateDropdown();
-      });
+    function fetchData() {
+      loading.style.display = 'block';
+      fetch(csvUrl)
+        .then(response => response.text())
+        .then(text => {
+          parseCSV(text);
+          populateDropdown();
+          loading.style.display = 'none';
+        })
+        .catch(error => {
+          console.error('Gagal memuat data:', error);
+          loading.textContent = 'Gagal memuat data.';
+        });
+    }
 
     dropdown.addEventListener('change', () => {
       const index = parseInt(dropdown.value);
@@ -130,6 +151,9 @@
         tbody.innerHTML = '';
       }
     });
+
+    // Start fetch
+    fetchData();
   </script>
 </body>
 </html>
