@@ -11,32 +11,42 @@
       padding: 1rem;
       background: #f9f9f9;
     }
+
     h1 {
       text-align: center;
       font-size: 1.5rem;
       margin-bottom: 1rem;
     }
+
     select {
       width: 100%;
       padding: 0.5rem;
       font-size: 1rem;
       margin-bottom: 1rem;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
       background: #fff;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
+
     th, td {
       padding: 0.75rem;
       border: 1px solid #ddd;
       text-align: left;
       font-size: 0.9rem;
     }
+
+    th.center, td.center {
+      text-align: center;
+    }
+
     th {
       background: #f0f0f0;
     }
+
     @media (max-width: 600px) {
       th, td {
         font-size: 0.8rem;
@@ -55,9 +65,9 @@
   <table id="nilaiTable">
     <thead>
       <tr>
-        <th>No</th>
+        <th class="center">No</th>
         <th>Nama Siswa</th>
-        <th>Nilai</th>
+        <th class="center">Nilai</th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -78,7 +88,8 @@
     }
 
     function populateDropdown() {
-      // Mulai dari index 2 (bukan 0 dan 1) --> 0: No, 1: Nama
+      // Mulai dari kolom ke-3 (index 2), karena:
+      // 0 = No, 1 = Nama
       for (let i = 2; i < headers.length; i++) {
         const option = document.createElement('option');
         option.value = i;
@@ -92,13 +103,12 @@
       let no = 1;
 
       dataRows.forEach(row => {
-        // row[1] itu Nama Siswa
         if (row.length > subjectIndex && row[1]) {
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${no++}</td>
+            <td class="center">${no++}</td>
             <td>${row[1]}</td>
-            <td>${row[subjectIndex] || '-'}</td>
+            <td class="center">${row[subjectIndex] || '-'}</td>
           `;
           tbody.appendChild(tr);
         }
