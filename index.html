@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Nilai Akhir Siswa</title>
   <style>
     body {
@@ -60,28 +60,27 @@
         <th>Nilai</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Data siswa akan tampil di sini -->
-    </tbody>
+    <tbody></tbody>
   </table>
 
   <script>
     const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTFqxLQ97dRcaVuS3SGPeiQNzSuKu8S0nw-mLJPG1bVWFsW2JkT4NZuw7Z7nBvZVSmTjH96ZAwO9mXW/pub?output=csv';
     const dropdown = document.getElementById('mapelDropdown');
     const tbody = document.querySelector('#nilaiTable tbody');
+
     let headers = [];
-    let students = [];
+    let dataRows = [];
 
     function parseCSV(text) {
-      const rows = text.trim().split('\n').map(row => row.split(','));
-      headers = rows[0]; // Baris header
-      students = rows.slice(1); // Sisanya data siswa
+      const lines = text.trim().split('\n');
+      headers = lines[0].split(',').map(h => h.trim());
+      dataRows = lines.slice(1).map(line => line.split(',').map(cell => cell.trim()));
     }
 
     function populateDropdown() {
-      for (let i = 1; i < headers.length; i++) { // Mulai dari index 1 (karena index 0 itu "Nama")
+      for (let i = 1; i < headers.length; i++) {
         const option = document.createElement('option');
-        option.value = i; // Simpan index kolom
+        option.value = i;
         option.textContent = headers[i];
         dropdown.appendChild(option);
       }
@@ -89,15 +88,15 @@
 
     function updateTable(subjectIndex) {
       tbody.innerHTML = '';
-      students.forEach((row, index) => {
-        const nama = row[0];
-        const nilai = row[subjectIndex];
-        if (nilai) { // Tampilkan hanya kalau ada nilai
+      let no = 1;
+
+      dataRows.forEach(row => {
+        if (row.length > subjectIndex && row[0]) {
           const tr = document.createElement('tr');
           tr.innerHTML = `
-            <td>${index + 1}</td>
-            <td>${nama}</td>
-            <td>${nilai}</td>
+            <td>${no++}</td>
+            <td>${row[0]}</td>
+            <td>${row[subjectIndex] || '-'}</td>
           `;
           tbody.appendChild(tr);
         }
@@ -105,16 +104,16 @@
     }
 
     fetch(csvUrl)
-      .then(res => res.text())
+      .then(response => response.text())
       .then(text => {
         parseCSV(text);
         populateDropdown();
       });
 
     dropdown.addEventListener('change', () => {
-      const selectedIndex = dropdown.value;
-      if (selectedIndex) {
-        updateTable(selectedIndex);
+      const index = parseInt(dropdown.value);
+      if (!isNaN(index)) {
+        updateTable(index);
       } else {
         tbody.innerHTML = '';
       }
